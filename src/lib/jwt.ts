@@ -3,7 +3,7 @@ import {JWTPayload} from '@/types/user.types';
 
 
 export const generateToken = (payload: JWTPayload): string => {
-    return jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '1h' });
+    return jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '3h' });
 }
 
 export const verifyToken = (token: string) => {

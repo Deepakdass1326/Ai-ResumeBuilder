@@ -32,7 +32,7 @@ export interface Iprojects {
 
 
 export interface Ieducation {
-    institue: string,
+    institute: string,
     degree: string,
     startDate: string,
     endDate: string,
