@@ -1,97 +1,20 @@
 "use client";
-
 import { useRouter } from "next/navigation";
-import { Sparkles, FileText, ArrowRight } from "lucide-react";
+import { Bell, ChevronDown, FileText, LayoutGrid, Plus, Search, Sparkles, Target, Clock3 } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
 
 export default function DashboardPage() {
   const router = useRouter();
-
-  return (
-    <main className="min-h-screen bg-gradient-to-b from-white to-slate-100">
-      <section className="max-w-7xl mx-auto px-6 py-20">
-        {/* Hero */}
-        <div className="text-center max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border bg-white shadow-sm">
-            <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-medium">
-              AI-Powered Resume Builder
-            </span>
-          </div>
-
-          <h1 className="mt-8 text-5xl md:text-6xl font-bold tracking-tight text-slate-900">
-            Build Professional
-            <span className="block">
-              ATS-Friendly Resumes
-            </span>
-          </h1>
-
-          <p className="mt-6 text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
-            Create modern, recruiter-ready resumes in minutes.
-            Use AI to generate summaries, improve content,
-            optimize projects, and craft a resume that
-            stands out from the crowd.
-          </p>
-
-          <button
-            onClick={() => router.push("/resume")}
-            className="mt-10 inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-black text-white font-semibold hover:scale-105 transition-all duration-200 shadow-lg"
-          >
-            Create Resume
-            <ArrowRight size={18} />
-          </button>
-        </div>
-
-        {/* Features */}
-        <div className="grid md:grid-cols-3 gap-6 mt-24">
-          <div className="bg-white rounded-3xl p-8 border shadow-sm">
-            <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center">
-              <Sparkles />
-            </div>
-
-            <h3 className="mt-5 text-xl font-semibold">
-              AI Content Generation
-            </h3>
-
-            <p className="mt-3 text-slate-600">
-              Generate professional summaries,
-              project descriptions, and experience
-              content instantly using AI.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-3xl p-8 border shadow-sm">
-            <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center">
-              <FileText />
-            </div>
-
-            <h3 className="mt-5 text-xl font-semibold">
-              ATS Optimized
-            </h3>
-
-            <p className="mt-3 text-slate-600">
-              Create resumes designed to pass
-              applicant tracking systems and reach
-              recruiters effectively.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-3xl p-8 border shadow-sm">
-            <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center">
-              <ArrowRight />
-            </div>
-
-            <h3 className="mt-5 text-xl font-semibold">
-              Fast Workflow
-            </h3>
-
-            <p className="mt-3 text-slate-600">
-              Move step-by-step through personal
-              details, skills, projects, experience,
-              and AI enhancements.
-            </p>
-          </div>
-        </div>
+  return <main className="min-h-screen bg-[#f7f8fb] text-slate-900">
+    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-xl"><div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-4 sm:px-6"><BrandLogo href="/dashboard" /><div className="flex items-center gap-2"><button aria-label="Notifications" className="grid size-9 place-items-center rounded-xl text-slate-500 hover:bg-slate-100"><Bell className="size-4" /></button><button className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-1.5 pr-2 text-sm"><span className="grid size-7 place-items-center rounded-lg bg-violet-100 text-xs font-semibold text-[#5d51d6]">U</span><span className="hidden font-medium sm:block">My account</span><ChevronDown className="size-3.5 text-slate-400" /></button></div></div></header>
+    <div className="mx-auto grid max-w-[1440px] lg:grid-cols-[220px_1fr]">
+      <aside className="hidden min-h-[calc(100vh-64px)] border-r border-slate-200 bg-white p-4 lg:block"><nav className="space-y-1 text-sm"><a className="flex items-center gap-3 rounded-xl bg-violet-50 px-3 py-2.5 font-semibold text-[#5d51d6]"><LayoutGrid className="size-4" />Overview</a><a className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-slate-600 hover:bg-slate-50"><FileText className="size-4" />My resumes</a><a className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-slate-600 hover:bg-slate-50"><Sparkles className="size-4" />AI tools</a></nav><div className="mt-8 rounded-2xl bg-slate-950 p-4 text-white"><Target className="size-5 text-violet-300" /><p className="mt-4 text-sm font-semibold">Build with a goal</p><p className="mt-1 text-xs leading-5 text-slate-400">Tailor each resume to one target role for a stronger result.</p></div></aside>
+      <section className="min-w-0 px-4 py-8 sm:px-8 lg:px-10 lg:py-10">
+        <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><p className="text-sm font-medium text-[#6558e8]">Workspace</p><h1 className="mt-1 text-3xl font-semibold tracking-[-.04em]">Good to see you.</h1><p className="mt-2 text-sm text-slate-500">Create, improve, and manage resumes for every opportunity.</p></div><button onClick={() => router.push("/resume")} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#6558e8] px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_24px_-14px_#6558e8] hover:-translate-y-0.5 hover:bg-[#5145cd]"><Plus className="size-4" />New resume</button></div>
+        <div className="mt-8 grid gap-4 sm:grid-cols-3"><div className="rounded-2xl border border-slate-200 bg-white p-5"><div className="flex items-center justify-between"><span className="text-sm text-slate-500">Total resumes</span><FileText className="size-4 text-slate-400" /></div><p className="mt-4 text-2xl font-semibold">0</p><p className="mt-1 text-xs text-slate-400">Start your first resume</p></div><div className="rounded-2xl border border-slate-200 bg-white p-5"><div className="flex items-center justify-between"><span className="text-sm text-slate-500">Resume health</span><Target className="size-4 text-slate-400" /></div><p className="mt-4 text-2xl font-semibold">—</p><p className="mt-1 text-xs text-slate-400">Complete a resume to score it</p></div><div className="rounded-2xl border border-slate-200 bg-white p-5"><div className="flex items-center justify-between"><span className="text-sm text-slate-500">Last edited</span><Clock3 className="size-4 text-slate-400" /></div><p className="mt-4 text-2xl font-semibold">—</p><p className="mt-1 text-xs text-slate-400">No recent activity</p></div></div>
+        <div className="mt-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-center"><div><h2 className="text-lg font-semibold">Recent resumes</h2><p className="mt-1 text-sm text-slate-500">Your latest drafts and completed resumes.</p></div><div className="relative"><Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" /><input aria-label="Search resumes" placeholder="Search resumes" className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 sm:w-56" /></div></div>
+        <div className="mt-5 grid min-h-72 place-items-center rounded-[20px] border border-dashed border-slate-300 bg-white px-6 py-14 text-center"><div className="max-w-sm"><span className="mx-auto grid size-12 place-items-center rounded-2xl bg-violet-50 text-[#6558e8]"><FileText className="size-5" /></span><h3 className="mt-5 font-semibold">Create your first resume</h3><p className="mt-2 text-sm leading-6 text-slate-500">Start with a guided flow and let Careerly help turn your experience into clear, compelling content.</p><button onClick={() => router.push("/resume")} className="mt-6 inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold hover:border-violet-200 hover:bg-violet-50"><Plus className="size-4" />Create resume</button></div></div>
       </section>
-    </main>
-  );
+    </div>
+  </main>;
 }

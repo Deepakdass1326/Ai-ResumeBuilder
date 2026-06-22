@@ -13,7 +13,8 @@ export interface IUser{
 export interface RegisterBody{
     name:string,
     email:string,
-    password:string
+    password:string,
+    mobile?:string
 }
 
 export interface LoginBody{

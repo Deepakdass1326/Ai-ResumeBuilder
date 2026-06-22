@@ -1,64 +1,12 @@
 "use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowLeft, ArrowRight, Check, FileText, LoaderCircle, Sparkles } from "lucide-react";
 import { createResume } from "@/apis/resume.api";
+import { BrandLogo } from "@/components/brand-logo";
 
 export default function ResumePage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-
-  const handleCreateResume = async () => {
-    try {
-      setLoading(true);
-
-      const response = await createResume();
-
-      if (!response.data?._id) {
-        throw new Error("Resume ID not found");
-      }
-
-      router.push(
-        `/resume/${response.data._id}/personal-info`
-      );
-    } catch (error) {
-      console.error("Create Resume Error:", error);
-      alert("Failed to create resume");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center px-6">
-      <div className="max-w-3xl w-full bg-white border rounded-3xl shadow-xl p-10">
-        <div className="text-center">
-          <div className="w-20 h-20 mx-auto rounded-3xl bg-black text-white flex items-center justify-center text-4xl">
-            📄
-          </div>
-
-          <h1 className="mt-6 text-4xl font-bold text-slate-900">
-            Create a New Resume
-          </h1>
-
-          <p className="mt-4 text-slate-600 max-w-xl mx-auto">
-            Generate a professional ATS-friendly resume
-            using AI. Add your personal details,
-            education, experience, projects, skills,
-            and achievements through a guided workflow.
-          </p>
-
-          <button
-            onClick={handleCreateResume}
-            disabled={loading}
-            className="mt-10 px-8 py-4 bg-black text-white rounded-2xl font-semibold hover:opacity-90 transition disabled:opacity-50"
-          >
-            {loading
-              ? "Creating Resume..."
-              : "Start Building Resume"}
-          </button>
-        </div>
-      </div>
-    </main>
-  );
+  const router=useRouter(); const [loading,setLoading]=useState(false); const [error,setError]=useState("");
+  const handleCreateResume=async()=>{try{setLoading(true);setError("");const response=await createResume();if(!response.data?._id)throw new Error("Resume ID not found");router.push(`/resume/${response.data._id}/personal-info`);}catch{setError("We couldn't create your resume. Please try again.");}finally{setLoading(false);}};
+  return <main className="min-h-screen bg-[#f7f8fb]"><header className="border-b border-slate-200 bg-white"><div className="container-shell flex h-16 items-center justify-between"><BrandLogo href="/dashboard"/><button onClick={()=>router.push("/dashboard")} className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"><ArrowLeft className="size-4"/>Dashboard</button></div></header><section className="container-shell grid min-h-[calc(100vh-65px)] place-items-center py-12"><div className="w-full max-w-3xl overflow-hidden rounded-[24px] border border-slate-200 bg-white premium-shadow"><div className="grid md:grid-cols-[.85fr_1.15fr]"><div className="bg-slate-950 p-8 text-white sm:p-10"><div className="grid size-11 place-items-center rounded-2xl bg-white/10"><FileText className="size-5 text-violet-300"/></div><h2 className="mt-8 text-2xl font-semibold tracking-tight">One focused step at a time.</h2><p className="mt-3 text-sm leading-6 text-slate-400">Careerly guides you from the basics to a polished final resume.</p><div className="mt-8 space-y-3">{["Add your background","Enhance with AI","Preview and refine"].map(x=><p key={x} className="flex items-center gap-2 text-sm text-slate-300"><Check className="size-4 text-violet-300"/>{x}</p>)}</div></div><div className="p-8 sm:p-10"><span className="inline-flex items-center gap-2 rounded-full bg-violet-50 px-3 py-1.5 text-xs font-semibold text-[#5d51d6]"><Sparkles className="size-3.5"/>New resume</span><h1 className="mt-6 text-3xl font-semibold tracking-[-.04em]">Let’s build your next resume.</h1><p className="mt-3 text-sm leading-6 text-slate-500">We’ll create a private draft and take you straight to your personal details. You can update every section along the way.</p>{error&&<p role="alert" className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}<button onClick={handleCreateResume} disabled={loading} className="mt-8 flex w-full items-center justify-center rounded-xl bg-[#6558e8] py-3.5 text-sm font-semibold text-white hover:bg-[#5145cd] disabled:opacity-60">{loading?<><LoaderCircle className="mr-2 size-4 animate-spin"/>Preparing your workspace…</>:<>Start building <ArrowRight className="ml-2 size-4"/></>}</button><p className="mt-4 text-center text-xs text-slate-400">Takes about 10 minutes · Your progress is saved</p></div></div></div></section></main>;
 }

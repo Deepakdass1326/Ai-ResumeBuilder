@@ -4,7 +4,7 @@ import { connectDB } from "@/lib/mongodb";
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import ResumeModel from "@/models/resume.model";
 
-export async function GET(res:NextResponse, {params}: {params: Promise<{resumeid: string}>}) {
+export async function GET(_request: NextRequest, {params}: {params: Promise<{resumeid: string}>}) {
 
     try {
       
@@ -47,7 +47,7 @@ export async function GET(res:NextResponse, {params}: {params: Promise<{resumeid
 
 }
 
-export async function PATCH(res:NextResponse, {params}: {params: Promise<{resumeid: string}>}) {
+export async function PATCH(request: NextRequest, {params}: {params: Promise<{resumeid: string}>}) {
 
     try {
       
@@ -55,7 +55,7 @@ export async function PATCH(res:NextResponse, {params}: {params: Promise<{resume
 
       const user = await getCurrentUser()
 
-      const body = await res.json()
+      const body = await request.json()
 
       const {resumeid} = await params
 

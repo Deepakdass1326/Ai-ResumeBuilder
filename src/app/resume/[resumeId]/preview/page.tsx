@@ -2,35 +2,35 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { CheckCircle2, Download, FileCheck2, LoaderCircle } from "lucide-react";
 import { getResumeById } from "@/apis/resume.api";
 import { getAtsScore } from "@/apis/ai.api";
 import { IResume } from "@/types/resume.types";
+import { ResumeDocument } from "@/components/resume-document";
 
 export default function PreviewPage() {
   const { resumeId } = useParams<{ resumeId: string }>();
-
   const [loading, setLoading] = useState(true);
   const [resume, setResume] = useState<IResume | null>(null);
   const [atsScore, setAtsScore] = useState<number | null>(null);
   const [isScoring, setIsScoring] = useState(false);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetchResume();
-  }, []);
+  useEffect(() => { void fetchResume(); }, []);
 
   const fetchResume = async () => {
-    try {
-      setLoading(true);
-      const data = await getResumeById(resumeId);
-      setResume(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+    try { setLoading(true); setError(""); setResume(await getResumeById(resumeId)); }
+    catch { setError("We couldn't load this resume. Please return to the previous step and try again."); }
+    finally { setLoading(false); }
   };
 
   const handlePrint = () => {
+    if (!resume) return;
+    const originalTitle = document.title;
+    const filename = `${resume.personalInfo?.name || "Resume"} - Resume`;
+    document.title = filename;
+    const restoreTitle = () => { document.title = originalTitle; window.removeEventListener("afterprint", restoreTitle); };
+    window.addEventListener("afterprint", restoreTitle);
     window.print();
   };
 
@@ -38,225 +38,26 @@ export default function PreviewPage() {
     if (!resume) return;
     setIsScoring(true);
     try {
-      const text = `
-      ${resume.personalInfo?.name || ""}
-      ${resume.personalInfo?.email || ""} ${resume.personalInfo?.phone || ""}
-      Summary:
-      ${resume.summary || ""}
-      Experience:
-      ${resume.workExperience?.map(e => `${e.position} at ${e.company} - ${e.description}`).join("\n")}
-      Projects:
-      ${resume.projects?.map(p => `${p.title} - ${p.description}`).join("\n")}
-      Skills:
-      ${resume.skills?.join(", ")}
-      Education:
-      ${resume.education?.map(e => `${e.degree} at ${e.institute}`).join("\n")}
-      `;
-
-      const score = await getAtsScore({ resumeText: text });
-      setAtsScore(score);
-    } catch (error) {
-      console.error(error);
-      alert("Failed to calculate ATS score");
-    } finally {
-      setIsScoring(false);
-    }
+      const text = `${resume.personalInfo?.name || ""}\n${resume.personalInfo?.email || ""} ${resume.personalInfo?.phone || ""}\nSummary:\n${resume.summary || ""}\nExperience:\n${resume.workExperience?.map(e => `${e.position} at ${e.company} - ${e.description}`).join("\n") || ""}\nProjects:\n${resume.projects?.map(p => `${p.title} - ${p.description}`).join("\n") || ""}\nSkills:\n${resume.skills?.join(", ") || ""}\nEducation:\n${resume.education?.map(e => `${e.degree} at ${e.institute}`).join("\n") || ""}`;
+      setAtsScore(await getAtsScore({ resumeText: text }));
+    } catch { setError("ATS scoring is temporarily unavailable. Your resume is still ready to export."); }
+    finally { setIsScoring(false); }
   };
 
-  if (loading) {
-    return <div className="text-center mt-20">Loading preview...</div>;
-  }
+  if (loading) return <div className="grid min-h-[55vh] place-items-center"><div className="text-center"><LoaderCircle className="mx-auto size-6 animate-spin text-[#6558e8]"/><p className="mt-3 text-sm text-slate-500">Preparing your resume preview…</p></div></div>;
+  if (!resume) return <div className="grid min-h-[55vh] place-items-center rounded-2xl border border-red-100 bg-white p-8 text-center text-sm text-red-700">{error || "Resume not found."}</div>;
 
-  if (!resume) {
-    return <div className="text-center mt-20">Resume not found</div>;
-  }
-
-  const { personalInfo, summary, workExperience, projects, education, skills } = resume;
-
-  return (
-    <div className="max-w-4xl mx-auto mb-20">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Resume Preview</h1>
-        <div className="flex items-center gap-4">
-          {atsScore !== null && (
-            <div className={`font-bold px-4 py-2 rounded-xl print:hidden ${atsScore >= 80 ? 'bg-green-100 text-green-700' : atsScore >= 60 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
-              ATS Score: {atsScore}/100
-            </div>
-          )}
-          <button
-            onClick={handleCheckAtsScore}
-            disabled={isScoring}
-            className="border border-slate-300 text-slate-700 px-6 py-2 rounded-xl print:hidden hover:bg-slate-50 disabled:opacity-50"
-          >
-            {isScoring ? "Scoring..." : "✨ Check ATS Score"}
-          </button>
-          <button
-            onClick={handlePrint}
-            className="bg-black text-white px-6 py-2 rounded-xl print:hidden hover:opacity-90"
-          >
-            Print / Download PDF
-          </button>
-        </div>
-      </div>
-
-      <div className="bg-white border shadow-sm p-10 min-h-[1056px] print:shadow-none print:border-none print:p-0 print:m-0">
-        {/* Header / Personal Info */}
-        <div className="text-center border-b pb-6 mb-6">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2 uppercase tracking-wide">
-            {personalInfo?.name || "Your Name"}
-          </h1>
-          <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm text-slate-900">
-            {personalInfo?.email && <span>{personalInfo.email}</span>}
-            {personalInfo?.phone && <span>• {personalInfo.phone}</span>}
-            {personalInfo?.location && <span>• {personalInfo.location}</span>}
-          </div>
-          <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm text-slate-900 mt-2">
-            {personalInfo?.linkedin && (
-              <a href={personalInfo.linkedin} target="_blank" rel="noreferrer" className="hover:underline">
-                LinkedIn
-              </a>
-            )}
-            {personalInfo?.github && (
-              <a href={personalInfo.github} target="_blank" rel="noreferrer" className="hover:underline">
-                GitHub
-              </a>
-            )}
-            {personalInfo?.portfolio && (
-              <a href={personalInfo.portfolio} target="_blank" rel="noreferrer" className="hover:underline">
-                Portfolio
-              </a>
-            )}
-          </div>
-        </div>
-
-        {/* Summary */}
-        {summary && (
-          <div className="mb-6">
-            <h2 className="text-lg font-bold text-slate-900 border-b border-slate-900 pb-1 mb-3 uppercase">
-              Professional Summary
-            </h2>
-            <p className="text-sm text-slate-900 leading-relaxed whitespace-pre-wrap">
-              {summary}
-            </p>
-          </div>
-        )}
-
-        {/* Experience */}
-        {workExperience && workExperience.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-lg font-bold text-slate-900 border-b border-slate-900 pb-1 mb-4 uppercase">
-              Experience
-            </h2>
-            <div className="space-y-5">
-              {workExperience.map((exp, index) => (
-                <div key={index}>
-                  <div className="flex justify-between items-start mb-1">
-                    <h3 className="font-semibold text-slate-900 text-base">
-                      {exp.position}
-                    </h3>
-                    <span className="text-sm text-slate-900 font-medium">
-                      {exp.startDate} - {exp.endDate || "Present"}
-                    </span>
-                  </div>
-                  <div className="text-sm text-slate-900 font-medium mb-2">
-                    {exp.company}
-                  </div>
-                  {exp.description && (
-                    <p className="text-sm text-slate-900 leading-relaxed whitespace-pre-wrap">
-                      {exp.description}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Projects */}
-        {projects && projects.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-lg font-bold text-slate-900 border-b border-slate-900 pb-1 mb-4 uppercase">
-              Projects
-            </h2>
-            <div className="space-y-4">
-              {projects.map((proj, index) => (
-                <div key={index}>
-                  <div className="flex items-center gap-3 mb-1">
-                    <h3 className="font-semibold text-slate-900 text-base">
-                      {proj.title}
-                    </h3>
-                    <div className="flex gap-2 text-xs text-slate-900">
-                      {proj.liveUrl && (
-                        <a href={proj.liveUrl} target="_blank" rel="noreferrer" className="hover:underline">
-                          [Live]
-                        </a>
-                      )}
-                      {proj.githubUrl && (
-                        <a href={proj.githubUrl} target="_blank" rel="noreferrer" className="hover:underline">
-                          [GitHub]
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                  {proj.description && (
-                    <p className="text-sm text-slate-900 mb-1 leading-relaxed">
-                      {proj.description}
-                    </p>
-                  )}
-                  {proj.techStack && proj.techStack.length > 0 && (
-                    <div className="text-sm text-slate-900">
-                      <span className="font-medium text-slate-900">Tech Stack: </span>
-                      <span>{proj.techStack.join(", ")}</span>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Education */}
-        {education && education.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-lg font-bold text-slate-900 border-b border-slate-900 pb-1 mb-4 uppercase">
-              Education
-            </h2>
-            <div className="space-y-4">
-              {education.map((edu, index) => (
-                <div key={index} className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-semibold text-slate-900 text-base">
-                      {edu.institute}
-                    </h3>
-                    <div className="text-sm text-slate-900">
-                      {edu.degree}
-                    </div>
-                  </div>
-                  <span className="text-sm text-slate-900 font-medium">
-                    {edu.startDate} - {edu.endDate}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Skills */}
-        {skills && skills.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-lg font-bold text-slate-900 border-b border-slate-900 pb-1 mb-3 uppercase">
-              Skills
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              {skills.map((skill, index) => (
-                <span key={index} className="px-3 py-1 bg-slate-200 text-slate-900 text-sm font-medium rounded-lg">
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+  return <div className="resume-preview-shell">
+    <div className="resume-preview-toolbar print:hidden">
+      <div><p className="text-xs font-semibold uppercase tracking-[.1em] text-[#6558e8]">Final review</p><h1 className="mt-1 text-2xl font-semibold tracking-[-.03em]">Your resume is ready.</h1><p className="mt-1 text-sm text-slate-500">A4 format · ATS-friendly · Text remains selectable</p></div>
+      <div className="flex flex-wrap items-center gap-2">
+        {atsScore !== null && <div className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold ${atsScore >= 80 ? "bg-emerald-50 text-emerald-700" : atsScore >= 60 ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-700"}`}><CheckCircle2 className="size-4"/>ATS {atsScore}/100</div>}
+        <button onClick={handleCheckAtsScore} disabled={isScoring} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50">{isScoring?<LoaderCircle className="size-4 animate-spin"/>:<FileCheck2 className="size-4"/>}{isScoring ? "Checking…" : "Check ATS"}</button>
+        <button onClick={handlePrint} className="inline-flex items-center gap-2 rounded-xl bg-[#6558e8] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#5145cd]"><Download className="size-4"/>Download PDF</button>
       </div>
     </div>
-  );
+    {error && <p role="alert" className="mb-4 rounded-xl border border-amber-100 bg-amber-50 p-3 text-sm text-amber-800 print:hidden">{error}</p>}
+    <div className="resume-paper-stage"><ResumeDocument resume={resume}/></div>
+    <p className="mt-4 text-center text-xs leading-5 text-slate-400 print:hidden">In the print dialog, choose “Save as PDF”, A4 paper, 100% scale, and disable browser headers and footers.</p>
+  </div>;
 }
